@@ -42,6 +42,8 @@ export default async function handler(request: Request) {
     const headers = {
       Accept: "application/json",
       "Accept-Language": "en-US,en;q=0.9",
+        "User-Agent": "InflationExplorer/1.0 (personal research app)",
+
     };
 
     const urls = [
