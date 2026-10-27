@@ -1,6 +1,6 @@
 
 const IMF_API =
-  "https://www.imf.org/external/datamapper/api/v1";
+  "https://www.imf.org/external/datamapper/api/v2";
 
 export const config = {
   path: "/api/imf-inflation",
