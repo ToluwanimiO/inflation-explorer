@@ -54,14 +54,37 @@ export default async function handler(request: Request) {
       urls.map((url) => fetch(url, { headers })),
     );
 
-    const failedResponse = responses.find(
+    // const failedResponse = responses.find(
+    //   (response) => !response.ok,
+    // );
+
+    // if (failedResponse) {
+    //   return Response.json(
+    //     {
+    //       error: `The IMF returned HTTP ${failedResponse.status}.`,
+    //     },
+    //     { status: 502 },
+    //   );
+    // }
+    const failedIndex = responses.findIndex(
       (response) => !response.ok,
     );
 
-    if (failedResponse) {
+    if (failedIndex !== -1) {
+      const failedResponse = responses[failedIndex];
+      const details = await failedResponse.text();
+
+      console.error("IMF request failed:", {
+        url: urls[failedIndex],
+        status: failedResponse.status,
+        details: details.slice(0, 500),
+      });
+
       return Response.json(
         {
           error: `The IMF returned HTTP ${failedResponse.status}.`,
+          failedUrl: urls[failedIndex],
+          details: details.slice(0, 500),
         },
         { status: 502 },
       );
