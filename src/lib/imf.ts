@@ -44,25 +44,21 @@ export type IMFInflationData = {
 export async function fetchImfInflationRates(
   years: number[],
 ): Promise<IMFInflationData> {
-  const params = new URLSearchParams({
-    years: years.join(","),
-  });
-
-  const response = await fetch(`/api/imf-inflation?${params}`);
-
-  const payload = (await response.json()) as IMFProxyResponse;
+  const response = await fetch("/data/imf-inflation.json");
 
   if (!response.ok) {
     throw new Error(
-      payload.error ?? `Inflation data request failed (${response.status}).`,
+      `Could not load saved inflation data (${response.status}).`,
     );
   }
+
+  const payload = (await response.json()) as IMFProxyResponse;
 
   const countryCatalogue = payload.countriesData?.countries;
   const countryValues = payload.seriesData?.values?.PCPIPCH;
 
   if (!countryCatalogue || !countryValues) {
-    throw new Error("The IMF response did not contain the expected data.");
+    throw new Error("The saved IMF data has an unexpected structure.");
   }
 
   const result: IMFInflationCountry[] = [];
@@ -92,7 +88,7 @@ export async function fetchImfInflationRates(
       });
     }
 
-    // Keep only complete series for the current calculation model.
+    // Keep only countries with data for every requested year.
     if (rates.length !== years.length) continue;
 
     result.push({
@@ -120,3 +116,4 @@ export async function fetchImfInflationRates(
     lastModified: indicatorMetadata?.["last-modified"] ?? null,
   };
 }
+

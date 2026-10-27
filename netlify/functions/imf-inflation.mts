@@ -42,8 +42,6 @@ export default async function handler(request: Request) {
     const headers = {
       Accept: "application/json",
       "Accept-Language": "en-US,en;q=0.9",
-        "User-Agent": "InflationExplorer/1.0 (personal research app)",
-
     };
 
     const urls = [
@@ -56,37 +54,14 @@ export default async function handler(request: Request) {
       urls.map((url) => fetch(url, { headers })),
     );
 
-    // const failedResponse = responses.find(
-    //   (response) => !response.ok,
-    // );
-
-    // if (failedResponse) {
-    //   return Response.json(
-    //     {
-    //       error: `The IMF returned HTTP ${failedResponse.status}.`,
-    //     },
-    //     { status: 502 },
-    //   );
-    // }
-    const failedIndex = responses.findIndex(
+    const failedResponse = responses.find(
       (response) => !response.ok,
     );
 
-    if (failedIndex !== -1) {
-      const failedResponse = responses[failedIndex];
-      const details = await failedResponse.text();
-
-      console.error("IMF request failed:", {
-        url: urls[failedIndex],
-        status: failedResponse.status,
-        details: details.slice(0, 500),
-      });
-
+    if (failedResponse) {
       return Response.json(
         {
           error: `The IMF returned HTTP ${failedResponse.status}.`,
-          failedUrl: urls[failedIndex],
-          details: details.slice(0, 500),
         },
         { status: 502 },
       );
